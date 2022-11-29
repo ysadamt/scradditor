@@ -304,3 +304,23 @@ async def current(ctx):
     embeddedCurrent.add_field(name="Channel", value=channelFormatted, inline=False)
 
     await ctx.send(embed=embeddedCurrent)
+
+@bot.command()
+async def setchannel(ctx, arg):
+    if bot.get_channel(int(arg)) is None:
+        await ctx.send(f"Invalid channel ID: `{arg}`")
+    else:
+        # insert into database
+        # make sure it only has no channels/one channel in the field
+        cur.execute("SELECT channel FROM tracking")
+        channel = cur.fetchone()
+
+        channelID = int(arg)
+        if channel[0] == channelID:
+            await ctx.send(f"Channel already set to <#{channel[0]}>")
+        else:
+            cur.execute("UPDATE tracking SET channel=?", (channelID,))
+            conn.commit()
+            await ctx.send(f"Channel set to <#{channelID}>")
+
+bot.run(TOKEN)
