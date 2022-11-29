@@ -159,3 +159,68 @@ async def untrack(ctx, *args):
     
     if len(toUntrack) > 0:
         await ctx.send(f"Removed `{len(toUntrack)}` subreddit(s): `{', '.join(toUntrack)}`")
+
+# command to add keywords to track
+@bot.command()
+async def add(ctx, *args):
+    # remove duplicates in args
+    args = [*set(args)]
+
+    # initialize two empty lists
+    # stores not tracked/already tracked keywords from args
+    alreadyTracked = []
+    notTracked = []
+
+    # select the keywords column
+    # fetch the first row
+    cur.execute("SELECT keywords FROM tracking")
+    keywords = cur.fetchone() # result can be a tuple or None
+
+    # if there is a row
+    if keywords != None:
+        # existingWords is a list of keywords strings split from a longer string with format:
+        # "keyword1,keyword2,keyword3"
+        if keywords[0] == None or keywords[0] == "":
+            existingWords = []
+        else:
+            existingWords = keywords[0].split(',')    
+
+        # loop through args to see which keywords are already tracked/not tracked
+        for keyword in args:
+            keyword = keyword.lower()
+            if keyword in existingWords:
+                alreadyTracked.append(keyword)
+            else:
+                notTracked.append(keyword)
+        
+        # if there are currently no keywords being tracked, preceding ',' is not required
+        if len(existingWords) == 0:
+            # create updatedWords string
+            updatedWords = ','.join(notTracked)
+        else:
+            # create updatedWords string
+            updatedWords = ','.join(existingWords) + ',' + ','.join(notTracked)
+        
+        # if args contains any keywords that are already tracked, then this should execute
+        if len(alreadyTracked) > 0:
+            await ctx.send(f"Already tracking these keywords(s): `{', '.join(alreadyTracked)}`")
+
+        # update database
+        if len(notTracked) > 0:
+            cur.execute("UPDATE tracking SET keywords=?", (updatedWords,))
+            conn.commit()
+    # subs is None; table has no rows
+    else:
+        # all keywords in args are not being tracked
+        notTracked = args
+
+        # create updatedWords string
+        updatedWords = ','.join(notTracked)
+
+        # update database
+        cur.execute("INSERT INTO tracking (keywords) VALUES(?)", (updatedWords,))
+        conn.commit()
+
+    # if there is at least one keyword in args that is not currently being tracked, then this should execute
+    if len(notTracked) > 0:
+        await ctx.send(f"Added `{len(notTracked)}` keyword(s) to track: `{', '.join(notTracked)}`")
