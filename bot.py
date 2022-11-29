@@ -122,3 +122,40 @@ async def track(ctx, *args):
     # if there is at least one subreddit in args that is not currently being tracked, then this should execute
     if len(notTracked) > 0:
         await ctx.send(f"Added `{len(notTracked)}` subreddit(s) to track: `{', '.join(notTracked)}`")
+
+@bot.command()
+async def untrack(ctx, *args):
+    # remove duplicates in args
+    args = [*set(args)]
+
+    toUntrack = []
+    notCurrentlyTracked = []
+
+    cur.execute("SELECT subreddits FROM tracking")
+    subreddits = cur.fetchone() # result can be a tuple or None
+
+    if subreddits != None and subreddits[0] != None and subreddits[0] != "":
+        existingSubs = subreddits[0].split('+')
+
+        if len(existingSubs) == 0:
+            await ctx.send("No subreddit(s) are currently being tracked")
+        else:
+            for subreddit in args:
+                if subreddit in existingSubs:
+                    existingSubs.remove(subreddit)
+                    toUntrack.append(subreddit)
+                else:
+                    notCurrentlyTracked.append(subreddit)
+            updatedSubs = '+'.join(existingSubs)
+
+            if len(notCurrentlyTracked) > 0:
+                await ctx.send(f"Subreddit(s) not currently being tracked: `{', '.join(notCurrentlyTracked)}`")
+            
+            if len(toUntrack) > 0:
+                cur.execute("UPDATE tracking SET subreddits=?", (updatedSubs,))
+                conn.commit()
+    else:
+        await ctx.send("No subreddit(s) are currently being tracked")
+    
+    if len(toUntrack) > 0:
+        await ctx.send(f"Removed `{len(toUntrack)}` subreddit(s): `{', '.join(toUntrack)}`")
