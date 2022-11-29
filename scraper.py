@@ -49,7 +49,7 @@ async def track_new_submissions(channel):
     subs = cur.fetchone() # result can be a tuple or None
 
     # reddit and subreddit instance have to be in an "async def" function 
-    reddit = asyncpraw.Reddit("scraper", user_agent="reddit scraper")
+    reddit = asyncpraw.Reddit("scraper", user_agent="scradditor")
     subreddit = await reddit.subreddit(subs[0])
 
     # select the keywords column
