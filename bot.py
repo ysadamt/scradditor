@@ -265,3 +265,42 @@ async def remove(ctx, *args):
     
     if len(toRemove) > 0:
         await ctx.send(f"Removed `{len(toRemove)}` keyword(s): `{', '.join(toRemove)}`")
+
+# show currently tracked subreddits/keywords
+@bot.command()
+async def current(ctx):
+    cur.execute("SELECT subreddits from tracking")
+    subreddits = cur.fetchone()
+
+    numSubs = 0
+    subsFormatted = "`None`"
+    if subreddits != None and subreddits[0] != None and subreddits[0] != "":
+        existingSubs = subreddits[0].split('+')
+        numSubs = len(existingSubs)
+        subsFormatted = f"`{', '.join(existingSubs)}`"
+
+    cur.execute("SELECT keywords from tracking")
+    keywords = cur.fetchone()
+
+    numWords = 0
+    wordsFormatted = "`None`"
+    if keywords != None and keywords[0] != None and keywords[0] != "":
+        existingWords = keywords[0].split(',')
+        numWords = len(existingWords)
+        wordsFormatted = f"`{', '.join(existingWords)}`"
+
+    cur.execute("SELECT channel FROM tracking")
+    channelID = cur.fetchone()
+
+    channelFormatted = "`None`"
+    if channelID != None and channelID[0] != None and channelID[0] != "":
+        channelFormatted = f"<#{channelID[0]}>"
+
+    currentDescription = f"`{numSubs}` subreddit(s) and `{numWords}` keyword(s)."
+    embeddedCurrent = discord.Embed(title="Currently Tracking", description=currentDescription, color=discord.Color.light_gray())
+    
+    embeddedCurrent.add_field(name="Subreddit(s)", value=subsFormatted, inline=False)
+    embeddedCurrent.add_field(name="Keyword(s)", value=wordsFormatted, inline=False)
+    embeddedCurrent.add_field(name="Channel", value=channelFormatted, inline=False)
+
+    await ctx.send(embed=embeddedCurrent)
