@@ -16,3 +16,8 @@ GUILD = os.getenv("DISCORD_GUILD")
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='$', intents=intents, help_command=None)
 
+# connect to database
+conn = sqlite3.connect('tracking.db')
+cur = conn.cursor()
+cur.execute("CREATE TABLE IF NOT EXISTS tracking(subreddits TEXT, keywords TEXT, channel INTEGER)")
+
