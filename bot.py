@@ -160,7 +160,7 @@ async def untrack(ctx, *args):
     if len(toUntrack) > 0:
         await ctx.send(f"Removed `{len(toUntrack)}` subreddit(s): `{', '.join(toUntrack)}`")
 
-# command to add keywords to track
+# command to add keywords from tracking
 @bot.command()
 async def add(ctx, *args):
     # remove duplicates in args
@@ -224,3 +224,44 @@ async def add(ctx, *args):
     # if there is at least one keyword in args that is not currently being tracked, then this should execute
     if len(notTracked) > 0:
         await ctx.send(f"Added `{len(notTracked)}` keyword(s) to track: `{', '.join(notTracked)}`")
+
+# command to remove keywords from tracking
+@bot.command()
+async def remove(ctx, *args):
+    # remove duplicates in args
+    args = [*set(args)]
+
+    toRemove = []
+    notCurrentlyTracked = []
+
+    # select the keywords column
+    # fetch the first row
+    cur.execute("SELECT keywords FROM tracking")
+    keywords = cur.fetchone() # result can be a tuple or None
+
+    if keywords != None and keywords[0] != None and keywords[0] != "":
+        existingWords = keywords[0].split(',')
+
+        if len(existingWords) == 0:
+            await ctx.send("No keyword(s) are currently being tracked")
+        else:
+            for keyword in args:
+                keyword = keyword.lower()
+                if keyword in existingWords:
+                    existingWords.remove(keyword)
+                    toRemove.append(keyword)
+                else:
+                    notCurrentlyTracked.append(keyword)
+            updatedWords = ','.join(existingWords)
+
+            if len(notCurrentlyTracked) > 0:
+                await ctx.send(f"Keyword(s) not currently being tracked: `{', '.join(notCurrentlyTracked)}`")
+
+            if len(toRemove) > 0:
+                cur.execute("UPDATE tracking SET keywords=?", (updatedWords,))
+                conn.commit()
+    else:
+        await ctx.send("No keyword(s) are currently being tracked")
+    
+    if len(toRemove) > 0:
+        await ctx.send(f"Removed `{len(toRemove)}` keyword(s): `{', '.join(toRemove)}`")
