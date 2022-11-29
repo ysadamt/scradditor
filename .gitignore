@@ -9,3 +9,6 @@ scradditor_venv/
 
 # ignore .db files
 *.db
+
+# ignore __pycache__ folder
+__pycache__/
