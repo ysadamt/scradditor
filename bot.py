@@ -5,6 +5,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from scraper import track_new_submissions, end_track
+
 # get token and guild IDs from .env file
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -39,3 +41,21 @@ async def help(ctx):
     embeddedHelp.add_field(name="`$help`", value="Show this help message.", inline=False)
 
     await ctx.send(embed=embeddedHelp)
+
+# command to trigger new submission tracking
+@bot.command()
+async def start(ctx):
+    cur.execute("SELECT channel FROM tracking")
+    channelID = cur.fetchone()
+    if channelID == None or channelID[0] == None or channelID[0] == 0:
+        await ctx.send("No tracking channel provided")
+    else:
+        await ctx.send("Tracking started!")
+        channel = bot.get_channel(channelID[0])
+        await track_new_submissions(channel)
+
+# command to trigger new submission tracking
+@bot.command()
+async def end(ctx):
+    await ctx.send("Tracking ended!")
+    await end_track()
