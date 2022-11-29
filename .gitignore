@@ -6,3 +6,6 @@
 
 # ignore venv folder
 scradditor_venv/
+
+# ignore .db files
+*.db
