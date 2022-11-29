@@ -59,3 +59,66 @@ async def start(ctx):
 async def end(ctx):
     await ctx.send("Tracking ended!")
     await end_track()
+
+# command to add subreddits to track
+@bot.command()
+async def track(ctx, *args):
+    # remove duplicates in args
+    args = [*set(args)]
+
+    # initialize two empty lists
+    # stores not tracked/already tracked subreddit from args
+    alreadyTracked = []
+    notTracked = []
+
+    # select the subreddits column
+    # fetch the first row
+    cur.execute("SELECT subreddits FROM tracking")
+    subs = cur.fetchone() # result can be a tuple or None
+
+    # if there is a row
+    if subs != None:
+        if subs[0] == None or subs[0] == "":
+            existingSubs = []
+        else:
+            # existingSubs is a list of subreddit strings split from a longer string with format:
+            # "subreddit1+subreddit2+subreddit3"
+            existingSubs = subs[0].split('+')
+        # loop through args to see which subreddits are already tracked/not tracked
+        for subreddit in args:
+            if subreddit in existingSubs:
+                alreadyTracked.append(subreddit)
+            else:
+                notTracked.append(subreddit)
+        
+        # if there are currently no subreddits being tracked, preceding '+' is not required
+        if len(existingSubs) == 0:
+            # create updatedSubs string
+            updatedSubs = '+'.join(notTracked)
+        else:
+            # create updatedSubs string
+            updatedSubs = '+'.join(existingSubs) + '+' + '+'.join(notTracked)
+        
+        # if args contains any subreddits that are already tracked, then this should execute
+        if len(alreadyTracked) > 0:
+            await ctx.send(f"Already tracking these subreddit(s): `{', '.join(alreadyTracked)}`")
+
+        # update database
+        if len(notTracked) > 0:
+            cur.execute("UPDATE tracking SET subreddits=?", (updatedSubs,))
+            conn.commit()
+    # subs is None; table has no rows
+    else:
+        # all subreddits in args are not being tracked
+        notTracked = args
+
+        # create updatedSubs string
+        updatedSubs = '+'.join(notTracked)
+
+        # update database
+        cur.execute("INSERT INTO tracking (subreddits) VALUES(?)", (updatedSubs,))
+        conn.commit()
+
+    # if there is at least one subreddit in args that is not currently being tracked, then this should execute
+    if len(notTracked) > 0:
+        await ctx.send(f"Added `{len(notTracked)}` subreddit(s) to track: `{', '.join(notTracked)}`")
