@@ -1,0 +1,8 @@
+# ignore all ini
+*.ini
+
+# ignore .env
+.env
+
+# ignore venv folder
+scradditor_venv/
