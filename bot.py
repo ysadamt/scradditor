@@ -27,7 +27,7 @@ cur.execute("CREATE TABLE IF NOT EXISTS tracking(subreddits TEXT, keywords TEXT,
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
-@bot.command(name="help")
+@bot.command()
 async def help(ctx):
     embeddedHelp = discord.Embed(title="Help", description="List of commands", color=discord.Color.light_gray())
     embeddedHelp.add_field(name="`$start`", value="Starts tracking", inline=False)
