@@ -70,3 +70,9 @@ async def track_new_submissions(channel):
             # create embed
             embeddedPost = await create_post_embed(submission)
             await channel.send(embed=embeddedPost)
+
+async def end_track():
+    # set end to True
+    # should trigger the if statement inside the for loop in track_new_submissions()
+    global end
+    end = True
