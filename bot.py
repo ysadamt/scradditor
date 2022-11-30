@@ -30,8 +30,8 @@ async def on_ready():
 @bot.command()
 async def help(ctx):
     embeddedHelp = discord.Embed(title="Help", description="List of commands", color=discord.Color.light_gray())
-    embeddedHelp.add_field(name="`$start`", value="Starts tracking", inline=False)
-    embeddedHelp.add_field(name="`$end`", value="Stops tracking", inline=False)
+    embeddedHelp.add_field(name="`$start`", value="Start tracking", inline=False)
+    embeddedHelp.add_field(name="`$end`", value="Stop tracking", inline=False)
     embeddedHelp.add_field(name="`$track`", value="Track a subreddit or keyword. Separate multiple subreddits/keywords with a space.", inline=False)
     embeddedHelp.add_field(name="`$untrack`", value="Untrack a subreddit. Separate multiple subreddits with a space.", inline=False)
     embeddedHelp.add_field(name="`$add`", value="Add a keyword. Separate multiple keywords with a space.", inline=False)
