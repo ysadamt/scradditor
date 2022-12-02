@@ -29,7 +29,9 @@ async def on_ready():
 
 @bot.command()
 async def help(ctx):
+    # create Embed object
     embeddedHelp = discord.Embed(title="Help", description="List of commands", color=discord.Color.light_gray())
+    # add fields
     embeddedHelp.add_field(name="`$start`", value="Start tracking", inline=False)
     embeddedHelp.add_field(name="`$end`", value="Stop tracking", inline=False)
     embeddedHelp.add_field(name="`$track`", value="Track a subreddit or keyword. Separate multiple subreddits/keywords with a space.", inline=False)
@@ -45,8 +47,10 @@ async def help(ctx):
 # command to trigger new submission tracking
 @bot.command()
 async def start(ctx):
+    # select the channel column
     cur.execute("SELECT channel FROM tracking")
     channelID = cur.fetchone()
+    # check if channel is set
     if channelID == None or channelID[0] == None or channelID[0] == 0:
         await ctx.send("No tracking channel provided")
     else:
@@ -269,9 +273,13 @@ async def remove(ctx, *args):
 # show currently tracked subreddits/keywords
 @bot.command()
 async def current(ctx):
+    # select the subreddits column
     cur.execute("SELECT subreddits from tracking")
     subreddits = cur.fetchone()
 
+    # count the number of subreddits being tracked and store in numSubs
+    # if there are no subreddits being tracked, numSubs is 0
+    # subsFormatted is a string of subreddits separated by commas
     numSubs = 0
     subsFormatted = "`None`"
     if subreddits != None and subreddits[0] != None and subreddits[0] != "":
@@ -279,9 +287,13 @@ async def current(ctx):
         numSubs = len(existingSubs)
         subsFormatted = f"`{', '.join(existingSubs)}`"
 
+    # select the keywords column
     cur.execute("SELECT keywords from tracking")
     keywords = cur.fetchone()
 
+    # count the number of keywords being tracked and store in numWords
+    # if there are no keywords being tracked, numWords is 0
+    # wordsFormatted is a string of keywords separated by commas
     numWords = 0
     wordsFormatted = "`None`"
     if keywords != None and keywords[0] != None and keywords[0] != "":
@@ -289,16 +301,22 @@ async def current(ctx):
         numWords = len(existingWords)
         wordsFormatted = f"`{', '.join(existingWords)}`"
 
+    # select the channel column
     cur.execute("SELECT channel FROM tracking")
     channelID = cur.fetchone()
 
+    # if there is a channel being tracked, store the channel ID in channelFormatted
     channelFormatted = "`None`"
     if channelID != None and channelID[0] != None and channelID[0] != "":
         channelFormatted = f"<#{channelID[0]}>"
 
+    # create formatted string
     currentDescription = f"`{numSubs}` subreddit(s) and `{numWords}` keyword(s)."
+
+    # create Embed object
     embeddedCurrent = discord.Embed(title="Currently Tracking", description=currentDescription, color=discord.Color.light_gray())
     
+    # add fields to Embed object
     embeddedCurrent.add_field(name="Subreddit(s)", value=subsFormatted, inline=False)
     embeddedCurrent.add_field(name="Keyword(s)", value=wordsFormatted, inline=False)
     embeddedCurrent.add_field(name="Channel", value=channelFormatted, inline=False)
