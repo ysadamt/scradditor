@@ -334,8 +334,10 @@ async def setchannel(ctx, arg):
         channel = cur.fetchone()
 
         channelID = int(arg)
-        if channel[0] == channelID:
-            await ctx.send(f"Channel already set to <#{channel[0]}>")
+
+        if channel != None and channel[0] != None and channel[0] != "":
+            if channel[0] == channelID:
+                await ctx.send(f"Channel already set to <#{channel[0]}>")
         else:
             cur.execute("UPDATE tracking SET channel=?", (channelID,))
             conn.commit()
