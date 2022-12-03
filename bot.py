@@ -307,7 +307,7 @@ async def current(ctx):
 
     # if there is a channel being tracked, store the channel ID in channelFormatted
     channelFormatted = "`None`"
-    if channelID != None and channelID[0] != None and channelID[0] != "":
+    if channelID != None and channelID[0] != None:
         channelFormatted = f"<#{channelID[0]}>"
 
     # create formatted string
@@ -335,11 +335,15 @@ async def setchannel(ctx, arg):
 
         channelID = int(arg)
 
-        if channel != None and channel[0] != None and channel[0] != "":
+        if channel != None and channel[0] != None:
             if channel[0] == channelID:
                 await ctx.send(f"Channel already set to <#{channel[0]}>")
+            else:
+                cur.execute("UPDATE tracking SET channel=?", (channelID,))
+                conn.commit()
+                await ctx.send(f"Channel set to <#{channelID}>")
         else:
-            cur.execute("UPDATE tracking SET channel=?", (channelID,))
+            cur.execute("INSERT INTO tracking (channel) VALUES(?)", (channelID,))
             conn.commit()
             await ctx.send(f"Channel set to <#{channelID}>")
 
