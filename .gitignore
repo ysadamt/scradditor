@@ -12,3 +12,6 @@ scradditor_venv/
 
 # ignore __pycache__ folder
 __pycache__/
+
+# ignore .vscode folder
+.vscode/
