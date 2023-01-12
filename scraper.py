@@ -12,7 +12,10 @@ end = False
 
 async def create_post_embed(submission):
     # create Embed object
-    embed = discord.Embed(title=submission.title, url=submission.url, color=discord.Color.light_gray())
+    embedTitle = submission.title
+    if len(embedTitle) > 256:
+        embedTitle = embedTitle[:253] + "..."
+    embed = discord.Embed(title=embedTitle, url=submission.url, color=discord.Color.light_gray())
 
     # set author
     user = submission.author
@@ -50,6 +53,7 @@ async def track_new_submissions(channel):
 
     # reddit and subreddit instance have to be in an "async def" function 
     reddit = asyncpraw.Reddit("scraper", user_agent="scradditor")
+    reddit.read_only = True
     subreddit = await reddit.subreddit(subs[0])
 
     # select the keywords column
@@ -58,18 +62,32 @@ async def track_new_submissions(channel):
     keywords = cur.fetchone() # result can be a tuple or None
     keywordList = keywords[0].split(',')
 
-    # keep checking for new submissions
-    async for submission in subreddit.stream.submissions(skip_existing=True):
-        # if end is True, that means end_track() was called
-        # break out of the stream loop
-        if end:
-            break
+    # helper flag to break out of while loop
+    flag = False
 
-        # TODO: check if keywords in submission title
-        if any(word in submission.title.lower() for word in keywordList):
-            # create embed
-            embeddedPost = await create_post_embed(submission)
-            await channel.send(embed=embeddedPost)
+    # keep checking for new submissions
+    while True:
+        try:
+            async for submission in subreddit.stream.submissions(skip_existing=True):
+                # if end is True, that means end_track() was called
+                # set helper flag to True and break out of the stream loop
+                if end:
+                    flag = True
+                    break
+
+                if any(word in submission.title.lower() for word in keywordList):
+                    # create embed
+                    embeddedPost = await create_post_embed(submission)
+                    await channel.send(embed=embeddedPost)
+        # ignore exceptions
+        except Exception as e:
+            logFile = open("errors.log", "a")
+            logFile.write(str(e))
+            logFile.close()
+            continue
+        # break out of while loop
+        if flag == True:
+            break
 
 async def end_track():
     # set end to True

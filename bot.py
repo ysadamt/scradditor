@@ -58,7 +58,7 @@ async def start(ctx):
         channel = bot.get_channel(channelID[0])
         await track_new_submissions(channel)
 
-# command to trigger new submission tracking
+# command to end submission tracking
 @bot.command()
 async def end(ctx):
     await ctx.send("Tracking ended!")
