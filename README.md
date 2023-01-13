@@ -23,14 +23,14 @@ There are four main steps to set up this bot: creating a Reddit app, creating a 
 3. On the "Applications" page, click on "New Application" on the top right corner
 4. Name the app to your liking
 5. On the "Bot" page, click on "Add Bot"
-6. Toggle all the options in the "Privileged Gateway Intents" section
+6. Toggle all the options in the "Privileged Gateway Intents" section[^1]
 7. Click "Reset Token" and save this token somewhere in your local machine
 
 ### Setting up Google Cloud
 1. Create a Google Cloud account if you haven't already
 2. Create a new project with any name
 3. Click on "Create a VM" on the project welcome page
-4. It will prompt you to create a billing account, as a credit/debit card is required to use Google Cloud's [free tier](https://cloud.google.com/free/docs/free-cloud-features#compute) (don't worry, you won't be charged if you stay within the limits)
+4. It will prompt you to create a billing account as it is required to use Google Cloud's [free tier](https://cloud.google.com/free/docs/free-cloud-features#compute)[^2]
 5. Set up billing account
 6. You should now be at the "Create an instance" page
 7. Choose a name for your VM instance
@@ -44,21 +44,25 @@ There are four main steps to set up this bot: creating a Reddit app, creating a 
 15. For the version, choose `Ubuntu 22.04 LTS` for `x86/64`
 16. Set boot disk type as `Standard persistent disk`
 17. Set size to `30` GB, as shown in the free tier documentation
+18. Although it might say that you will be charged for creating this instance, you won't
 
 ### Preparing the VM
 1. Install the gcloud CLI with these [instructions](https://cloud.google.com/sdk/docs/install)
 2. In the "VM instances" tab, click on the name of your VM instance
 3. Click the dropdown arrow next to the "SSH" button
 4. Click "View gcloud command"
-5. Copy the command and run it in your terminal
-6. Now you have your VM running!
-
-7. Create a new folder for your bot and navigate to the folder
+5. The command should look something like this:
+```
+$ gcloud compute ssh --zone "ZONE" "VM_NAME" --project "PROJECT_ID"
+```
+6. Copy the command and run it in your terminal
+7. Now you have your VM running!
+8. In your VM terminal, create a new folder for your bot and navigate to the folder
 ```
 $ mkdir YOUR_BOT_NAME
 $ cd YOUR_BOT_NAME
 ```
-8. For this step, you can either `git clone` this repo or manually create each file and copy paste the code
+9. For this step, you can either `git clone` this repo[^3] or manually create each file and copy paste the code
 ```
 $ git clone https://github.com/ysadamt/scradditor.git
 ```
@@ -66,11 +70,11 @@ $ git clone https://github.com/ysadamt/scradditor.git
 $ touch bot.py
 $ touch scraper.py
 ```
-9. If you are doing the second option, do this for `bot.py` and `scraper.py`
+10. If you are doing the second option, do this for `bot.py` and `scraper.py`
     1. Run `vim <filename>`
     2. Type `i` (enter insert mode in Vim)
-    3. Paste code using `CTRL-V` or right-click
-    4. Type `ESC` (exit insert mode)
+    3. Paste code using `CTRL V` or right-click
+    4. Press `ESC` (exit insert mode)
     5. Type `:w` then `:q` (write the code to file, then quit Vim)
 
 ### Creating Environment Variables
@@ -104,5 +108,8 @@ client_secret=
 ## Using the Bot
 Run the `$help` command in your server to view all the commands. You can set the subreddits, keywords, and channel to send new submissions in. If you made it this far, congrats! You will now be notified whenever a submission that matches your keywords is posted.
 
+[^1]: This is to give our bot extra permissions
 
+[^2]: Don't worry, you won't be charged if you stay within the limits
 
+[^3]: To `git clone` the repository, you will need to sign in to GitHub in the VM
